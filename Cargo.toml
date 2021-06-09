@@ -1,0 +1,15 @@
+[package]
+name = "space_invaders"
+version = "0.1.0"
+authors = ["fredrik.julin <fredrik.julin@paradoxinteractive.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[env]
+RUST_BACKTRACE=1
+
+
+[dependencies]
+crossterm = "0.19.0"
+rusty_audio = "1.2.1"
+rusty_time = "0.11.0"
