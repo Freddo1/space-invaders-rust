@@ -10,6 +10,7 @@ use std::sync::mpsc;
 use space_invaders::{frame, render};
 use space_invaders::player::Player;
 use space_invaders::frame::Drawable;
+use space_invaders::invaders::Invaders;
 
 fn main() -> Result<()> {
     let mut audio = Audio::new();
@@ -46,6 +47,7 @@ fn main() -> Result<()> {
     // Game Loop
     let mut player = Player::new();
     let mut instant = Instant::now();
+    let mut invaders = Invaders::new();
     'game_loop: loop {
         // Per-frame init
         let delta = instant.elapsed();
@@ -73,11 +75,30 @@ fn main() -> Result<()> {
 
         // Updates
         player.update(delta);
+        if invaders.update(delta) {
+            audio.play("move");
+        }
+        if player.detect_hits(&mut invaders) {
+            audio.play("explode");
+        }
 
         // Draw & render
-        player.draw(&mut curr_frame);
+        let drawables: Vec<&dyn Drawable> = vec![&player, &invaders];
+        for drawable in drawables {
+            drawable.draw(&mut curr_frame);
+        }
         let _ = render_tx.send(curr_frame);
         thread::sleep(Duration::from_millis(1));
+
+        // Win or lose
+        if invaders.all_killed() {
+            audio.play("win");
+            break 'game_loop;
+        }
+        if invaders.reached_bottom() {
+            audio.play("lose");
+            break 'game_loop;
+        }
     }
 
     // Cleanup
